@@ -164,10 +164,6 @@ O chat abre uma conexão WebSocket vinculada ao chamado, recebe o histórico per
   <img src="docs/images/chat.jpg" alt="Chat em tempo real de um chamado" width="90%">
 </p>
 
-### Fluxo 4 — Outros estados
-
-Não há capturas adicionais no repositório no estado atual. Estados como criação, edição, cancelamento, perfil e telas administrativas podem ser registrados futuramente sem substituir as imagens acima.
-
 ## Execução local
 
 ### Pré-requisitos
