@@ -1,642 +1,280 @@
-
 # Sistema de Gerenciamento de Chamados
 
-<div align="center">
+## TL;DR
 
-![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat-square&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)
-![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=flat-square&logo=websocket&logoColor=white)
+**O que é:** sistema educacional colaborativo da Neukox para gerenciamento de chamados e comunicação entre usuário e atendimento.<br>
+**Stack:** Node.js, Express, TypeScript, PostgreSQL/Prisma e frontend React/TypeScript.<br>
+**Diferencial:** chat em tempo real via WebSocket, com histórico persistido, além de autenticação JWT e BCrypt.<br>
+**Contexto profissional:** liderança técnica, desenvolvimento backend e organização do trabalho via GitHub Projects/Kanban.
 
-**Plataforma completa de gerenciamento de chamados técnicos com suporte em tempo real**
+## Visão rápida
 
-</div>
+| Área | Implementação |
+| --- | --- |
+| Backend | Node.js, Express e TypeScript, organizado em rotas, controllers e services |
+| Frontend | React 19, TypeScript, Vite, React Router, React Query e Tailwind CSS |
+| Dados | PostgreSQL com Prisma; modelos de usuários, chamados e respostas |
+| Segurança | JWT, hash de senhas com BCrypt, rotas autenticadas e verificação de role administrativa |
+| Tempo real | WebSocket no mesmo servidor HTTP, salas lógicas por chamado e mensagens persistidas |
+| Processo | Projeto colaborativo com liderança técnica e organização por GitHub Projects/Kanban |
 
----
+## Contexto e equipe
 
-## 🎯 TL;DR (Resumo Executivo)
+Projeto educacional colaborativo da Neukox para gerenciamento de chamados e comunicação entre usuário e atendimento, utilizado como ambiente prático de liderança técnica e desenvolvimento backend.
 
-| Aspecto | Descrição |
-|--------|-----------|
-| **O que é** | Plataforma full-stack de gerenciamento de chamados técnicos com chat em tempo real via WebSockets, permitindo interação fluida entre usuários e equipe de suporte |
-| **Problema Resolvido** | Otimização do processo de atendimento técnico, reduzindo tempo de resposta e aumentando a agilidade operacional no suporte ao usuário |
-| **Stack & Tecnologias** | **Frontend:** React + TypeScript + TailwindCSS \| **Backend:** Node.js + Express + TypeScript \| **Banco:** PostgreSQL + Prisma \| **Infra:** WebSockets + JWT + Bcrypt |
-| **Resultado Prático** | ✅ +30% na agilidade do atendimento técnico \| ✅ 10+ endpoints RESTful robustos \| ✅ Chat em tempo real com baixa latência \| ✅ Arquitetura modular e escalável |
+| Integrante | Atuação |
+| --- | --- |
+| Gabriel Falcão da Cruz | Líder Técnico e Desenvolvedor Backend |
+| Davi Leal | Desenvolvedor Frontend |
+| Israel Soares | Desenvolvedor Full Stack |
+| Matheus Flores | Desenvolvedor Frontend |
 
----
+Gabriel atuou na liderança técnica, organização do Kanban, orquestração do trabalho, desenvolvimento backend e integração técnica. O projeto não é apresentado como um help desk comercial em produção.
 
-## 📚 Sobre o Projeto
+## Problema
 
-Este é um **projeto acadêmico** desenvolvido para a disciplina de **Código de Alta Performance**, com o objetivo de criar um sistema completo de gerenciamento de chamados ao longo de aproximadamente **2 meses e meio**.
+O sistema centraliza a abertura, consulta e atualização de chamados e oferece canais de atendimento por chat ou e-mail. Usuários acompanham seus próprios registros pela interface; administradores têm uma visão consolidada e ações específicas de atendimento.
 
-### 🎓 Contexto Acadêmico
-- **Disciplina:** Código de Alta Performance
-- **Duração:** ~2.5 meses
-- **Objetivo:** Demonstrar competências em arquitetura full-stack, performance e boas práticas de desenvolvimento
+## Arquitetura
 
-### 💼 Propósito do Sistema
+```text
+Frontend React
+   |-- HTTP/JSON + JWT --> Express --> controllers --> services --> Prisma --> PostgreSQL
+   `-- WebSocket --------> servidor HTTP compartilhado --> respostas persistidas
+```
 
-O sistema visa permitir que **usuários registrem, acompanhem e gerenciem chamados técnicos** de forma eficiente. A aplicação é composta por:
+- `Frontend/`: SPA React com páginas de autenticação, perfil, dashboards e fluxos distintos para usuário e administrador.
+- `Backend/src/server.ts`: inicializa Express e WebSocket no mesmo servidor HTTP.
+- `Backend/src/minhaAPI/`: concentra autenticação, chamados, usuários, respostas, e-mail, middlewares, sockets e o experimento RSA.
+- `Backend/prisma/schema.prisma`: define `Usuario`, `Chamado` e `Resposta`, com seus relacionamentos.
 
-- ✨ **Frontend interativo** com UX focada em usabilidade
-- 🔧 **Backend robusto** com arquitetura modular
-- ⚡ **Chat em tempo real** para comunicação fluida
-- 🔐 **Sistema de autenticação seguro** com JWT + Bcrypt
-- 📧 **Notificações por email** para atualizações de chamados
-
----
-
-## 🛠️ Stack Tecnológica
-
-### Frontend
-| Tecnologia | Versão | Propósito |
-|-----------|--------|----------|
-| **React** | ^19.1.0 | Framework UI moderna com hooks |
-| **TypeScript** | ~5.7.2 | Type-safety no JavaScript |
-| **TailwindCSS** | ^4.1.4 | Estilização utilitária responsiva |
-| **React Router** | ^7.5.1 | Roteamento SPA |
-| **React Hook Form** | ^7.55.0 | Gerenciamento de formulários |
-| **React Query** | ^5.74.4 | Sincronização de dados server |
-| **Axios** | ^1.9.0 | Cliente HTTP |
-| **Zod** | ^3.24.3 | Validação de schemas |
-| **DaisyUI** | ^5.0.27 | Componentes HTML predefinidos |
+## Stack
 
 ### Backend
-| Tecnologia | Versão | Propósito |
-|-----------|--------|----------|
-| **Node.js** | - | Runtime JavaScript |
-| **Express** | ^4.21.2 | Framework HTTP/REST |
-| **TypeScript** | ^5.8.2 | Type-safety |
-| **Prisma** | ^6.8.2 | ORM e gerenciamento de migrations |
-| **PostgreSQL** | - | Banco de dados relacional |
-| **JWT** | ^9.0.2 | Autenticação stateless |
-| **Bcrypt** | ^5.1.1 | Hash seguro de senhas |
-| **WebSocket (ws)** | ^8.18.1 | Comunicação bidirecional em tempo real |
-| **Nodemailer** | ^6.10.0 | Envio de emails |
 
-### Infraestrutura
-- 📦 **Node Package Manager (npm)** para gerenciamento de dependências
-- 🔄 **TypeScript Compiler** para transpilação
-- 🗄️ **Prisma Migrations** para versionamento de schema
-- 🔌 **WebSockets** para comunicação em tempo real
+- Node.js, Express 4 e TypeScript;
+- PostgreSQL e Prisma 6;
+- JSON Web Token e BCrypt;
+- biblioteca `ws` para WebSocket;
+- Nodemailer, Email Templates e Handlebars para notificações por e-mail.
 
----
+### Frontend
 
-## 🏗️ Arquitetura do Projeto
+- React 19, TypeScript e Vite;
+- React Router e TanStack React Query;
+- Axios, React Hook Form e Zod;
+- Tailwind CSS 4 e DaisyUI.
 
-### Estrutura de Diretórios
+## Funcionalidades
 
-```
-Sistema_De_Gerenciamento_De_Chamados/
-│
-├── 📁 Backend/                          # Servidor Node.js + Express
-│   ├── 📁 prisma/                       # Schema e migrations do banco
-│   │   └── schema.prisma                # Definição do modelo de dados
-│   │
-│   ├── 📁 email-templates/              # Templates de email (Handlebars)
-│   │   ├── 📁 mensagem-chamado/         # Template de novo chamado
-│   │   └── 📁 recuperar-senha/          # Template de recuperação de senha
-│   │
-│   ├── 📁 src/
-│   │   ├── server.ts                    # Entry point da aplicação
-│   │   │
-│   │   ├── 📁 minhaAPI/
-│   │   │   ├── 📁 autenticacao/         # Autenticação de usuários
-│   │   │   │   ├── models.ts            # Tipos/Interfaces
-│   │   │   │   └── services.ts          # Lógica de negócio
-│   │   │   │
-│   │   │   ├── 📁 chamados/             # Gestão de chamados técnicos
-│   │   │   │   ├── models.ts
-│   │   │   │   └── services.ts
-│   │   │   │
-│   │   │   ├── 📁 respostas/            # Respostas aos chamados
-│   │   │   │   ├── models.ts
-│   │   │   │   └── services.ts
-│   │   │   │
-│   │   │   ├── 📁 usuarios/             # Gestão de usuários
-│   │   │   │   ├── models.ts
-│   │   │   │   └── services.ts
-│   │   │   │
-│   │   │   ├── 📁 controllers/          # Controllers REST
-│   │   │   │   ├── autenticacao.controllers.ts
-│   │   │   │   ├── chamados.controllers.ts
-│   │   │   │   └── usuario.controllers.ts
-│   │   │   │
-│   │   │   ├── 📁 routes/               # Definição de rotas
-│   │   │   │   ├── autenticacaoRoutes.ts
-│   │   │   │   ├── chamadosRoutes.ts
-│   │   │   │   └── usuarioRoutes.ts
-│   │   │   │
-│   │   │   ├── 📁 middlewares/          # Middlewares Express
-│   │   │   │   ├── autenticate.ts       # Validação de JWT
-│   │   │   │   ├── isAdmin.ts           # Verificação de role admin
-│   │   │   │   ├── validateParams.ts    # Validação de parâmetros
-│   │   │   │   └── validateQuerys.ts    # Validação de query strings
-│   │   │   │
-│   │   │   ├── 📁 email/                # Sistema de emails
-│   │   │   │   ├── config.ts            # Configuração do Nodemailer
-│   │   │   │   └── send.ts              # Lógica de envio
-│   │   │   │
-│   │   │   ├── 📁 criptografia/         # E2EE (End-to-End Encryption)
-│   │   │   │   ├── criptografiaE2EE.ts  # Algoritmos de criptografia
-│   │   │   │   └── salvarChaves.ts      # Persistência de chaves
-│   │   │   │
-│   │   │   ├── 📁 sockets/              # WebSocket handlers
-│   │   │   │   ├── connection.ts        # Gerenciamento de conexões
-│   │   │   │   ├── privateMessageHandler.ts # Chat in real-time
-│   │   │   │   └── testClient.ts        # Cliente de teste
-│   │   │   │
-│   │   │   └── 📁 utils/                # Utilidades gerais
-│   │   │       ├── dateConverter.ts     # Formatação de datas
-│   │   │       └── JWT.ts               # Helpers JWT
-│   │   │
-│   │   └── 📁 docs/                     # Documentação interna
-│   │       └── Chat.md                  # Documentação do chat
-│   │
-│   ├── 📄 package.json
-│   ├── 📄 tsconfig.json
-│   └── 📄 render.yaml                   # Configuração de deployment
-│
-├── 📁 Frontend/                         # Aplicação React + Vite
-│   ├── 📁 public/                       # Arquivos estáticos
-│   │
-│   ├── 📁 src/
-│   │   ├── main.tsx                     # Entry point React
-│   │   ├── App.tsx                      # Componente raiz
-│   │   ├── routes.tsx                   # Configuração de rotas
-│   │   ├── index.css                    # Estilos globais
-│   │   │
-│   │   ├── 📁 assets/
-│   │   │   └── 📁 icons/                # Componentes de ícones
-│   │   │       ├── Chat.tsx
-│   │   │       ├── Dashboard.tsx
-│   │   │       ├── Logout.tsx
-│   │   │       └── ... (mais ícones)
-│   │   │
-│   │   ├── 📁 components/               # Componentes React reutilizáveis
-│   │   │   ├── 📁 auth/
-│   │   │   │   ├── LoginForm.tsx        # Formulário de login
-│   │   │   │   ├── RegisterForm.tsx     # Formulário de registro
-│   │   │   │   ├── RecoverPasswordForm.tsx
-│   │   │   │   └── ResetPasswordForm.tsx
-│   │   │   │
-│   │   │   ├── 📁 chat/                 # Componentes do chat
-│   │   │   │   └── Container.tsx
-│   │   │   │
-│   │   │   ├── 📁 tickets/              # Componentes de chamados
-│   │   │   ├── 📁 layout/               # Componentes de layout
-│   │   │   ├── 📁 email/                # Componentes de email
-│   │   │   ├── 📁 user/                 # Componentes de usuário
-│   │   │   └── 📁 ui/                   # Componentes UI genéricos
-│   │   │
-│   │   ├── 📁 context/                  # Context API
-│   │   │   ├── AuthContext.tsx          # Contexto de autenticação
-│   │   │   └── ToastContext.tsx         # Contexto de notificações
-│   │   │
-│   │   ├── 📁 hooks/                    # Custom React hooks
-│   │   │   ├── useChat.ts               # Hook para interação com chat
-│   │   │   ├── useFilters.ts            # Hook para filtros
-│   │   │   ├── useToggle.ts             # Hook para toggle
-│   │   │   └── useUserInfo.ts           # Hook para dados do usuário
-│   │   │
-│   │   ├── 📁 lib/                      # Utilitários e helpers
-│   │   │   ├── api.ts                   # Configuração de requisições HTTP
-│   │   │   └── roleBasedLoader.ts       # Carregamento baseado em roles
-│   │   │
-│   │   ├── 📁 pages/                    # Páginas/Layouts
-│   │   │   ├── MainLayout.tsx           # Layout principal
-│   │   │   ├── Protected.tsx            # Protected routes
-│   │   │   ├── 📁 admin/                # Páginas de admin
-│   │   │   ├── 📁 auth/                 # Páginas de autenticação
-│   │   │   ├── 📁 perfil/               # Páginas de perfil
-│   │   │   └── 📁 usuario/              # Páginas de usuário
-│   │   │
-│   │   ├── 📁 schemas/                  # Schemas Zod para validação
-│   │   │   ├── 📁 auth/
-│   │   │   ├── 📁 tickets/
-│   │   │   └── 📁 user/
-│   │   │
-│   │   ├── 📁 services/                 # Serviços API
-│   │   │   ├── authServices.ts          # Autenticação
-│   │   │   ├── ticketServices.ts        # Chamados
-│   │   │   └── userServices.ts          # Usuários
-│   │   │
-│   │   └── 📁 types/                    # TypeScript types/interfaces
-│   │       ├── Chat.ts
-│   │       ├── Ticket.ts
-│   │       └── User.ts
-│   │
-│   ├── 📄 index.html                    # HTML entry point
-│   ├── 📄 package.json
-│   ├── 📄 tsconfig.json
-│   ├── 📄 vite.config.ts                # Configuração Vite
-│   ├── 📄 nginx.conf                    # Configuração Nginx (produção)
-│   └── 📄 eslint.config.js              # Linting
-│
-└── 📄 README.md                         # Este arquivo
-```
+- cadastro, login, verificação de token, recuperação e redefinição de senha;
+- consulta e atualização dos dados do usuário e alteração de senha;
+- criação, listagem, consulta, edição, mudança de status e cancelamento de chamados;
+- filtros de chamados por busca, tipo de atendimento e status;
+- áreas distintas para usuários e administradores;
+- envio de notificações e mensagens relacionadas a chamados por e-mail;
+- chat por chamado com carregamento do histórico e persistência de novas mensagens.
 
----
+## Rotas HTTP
 
-## ✨ Funcionalidades Principais
+O backend possui **16 rotas HTTP declaradas nos três routers principais**, além de `GET /`, usada como resposta simples de disponibilidade do servidor.
 
-### 🔐 Autenticação & Segurança
-- ✅ Registro e login de usuários
-- ✅ Recuperação de senha por email
-- ✅ JWT para autenticação stateless
-- ✅ Bcrypt para hash seguro de senhas
-- ✅ Verificação de roles (Admin/User)
-- ✅ Middlewares de autenticação
-- ✅ Criptografia End-to-End (E2EE) para mensagens privadas
+### Autenticação — 5 rotas
 
-### 🎫 Gerenciamento de Chamados
-- ✅ Criar, editar, deletar e visualizar chamados
-- ✅ Atribuição de prioridades
-- ✅ Rastreamento de status em tempo real
-- ✅ Histórico completo de alterações
-- ✅ Sistema de respostas/comentários
-- ✅ Filtros avançados (status, prioridade, data, usuário)
+| Método | Rota | Finalidade |
+| --- | --- | --- |
+| `POST` | `/login` | Autenticar e emitir JWT |
+| `POST` | `/register` | Cadastrar usuário |
+| `POST` | `/forgot-password` | Solicitar recuperação por e-mail |
+| `POST` | `/reset-password` | Redefinir senha com token |
+| `POST` | `/verify-token` | Verificar validade do JWT |
 
-### 💬 Chat em Tempo Real
-- ✅ WebSocket bidirecional para comunicação instantânea
-- ✅ Mensagens privadas entre usuários
-- ✅ Notificações em tempo real
-- ✅ Histórico de mensagens persistido
-- ✅ Suporte a múltiplas conexões simultâneas
-- ✅ Indicador de usuário online/offline
+### Chamados — 8 rotas
 
-### 📧 Notificações por Email
-- ✅ Templates personalizados com Handlebars
-- ✅ Notificação de novo chamado
-- ✅ Notificação de resposta a chamado
-- ✅ Email de recuperação de senha
-- ✅ Suporte a múltiplos provedores SMTP
+| Método | Rota | Finalidade |
+| --- | --- | --- |
+| `GET` | `/chamados/` | Listar chamados; requer admin |
+| `GET` | `/chamados/:id` | Consultar chamado por ID |
+| `GET` | `/chamados/usuario/:id` | Listar chamados de um usuário |
+| `POST` | `/chamados/` | Criar chamado |
+| `POST` | `/chamados/mensagem/:id` | Enviar mensagem por e-mail; requer admin |
+| `PUT` | `/chamados/:id` | Atualizar título e descrição |
+| `PATCH` | `/chamados/status/:id` | Alterar status; requer admin |
+| `PATCH` | `/chamados/cancelar/:id` | Cancelar chamado |
 
-### 👥 Gestão de Usuários
-- ✅ Hierarquia de roles (Admin/Usuário comum)
-- ✅ Perfis de usuário customizáveis
-- ✅ Dashboard com estatísticas
-- ✅ Auditoria de ações
+### Usuário — 3 rotas
 
----
+| Método | Rota | Finalidade |
+| --- | --- | --- |
+| `GET` | `/user/:id` | Consultar dados do usuário |
+| `PUT` | `/user/:id` | Atualizar nome e e-mail |
+| `PATCH` | `/user/change-password/:id` | Alterar senha |
 
-## 🚀 Começando
+## WebSocket
+
+O servidor WebSocket utiliza o mesmo servidor HTTP do Express. Ao abrir o chat, o cliente envia um evento `register` com os IDs do chamado e do usuário. O backend registra a conexão no chamado e consulta no PostgreSQL o histórico armazenado em `Resposta`.
+
+Cada evento `chat_message` é persistido antes de o backend recuperar a última mensagem e fazer broadcast para as conexões registradas naquele chamado. No evento `unregister` ou ao fechar a conexão, o cliente é removido do registro em memória.
+
+## Segurança
+
+- senhas são armazenadas com hash BCrypt e fator de custo 10;
+- tokens JWT assinados protegem as rotas privadas e expiram conforme o fluxo — quatro horas para sessão e quinze minutos para recuperação de senha;
+- middleware específico verifica a role `admin` nas operações administrativas;
+- CORS aceita uma origem configurável por variável de ambiente;
+- parâmetros numéricos e filtros conhecidos passam por middlewares de validação.
+
+Esses controles representam o estado do código, não uma certificação ou garantia de segurança em produção.
+
+## Experimento de criptografia assimétrica RSA
+
+O backend contém um experimento que gera pares de chaves RSA de **2048 bits** durante o cadastro, armazena as chaves pública e privada no registro do usuário e disponibiliza funções de criptografia e descriptografia.
+
+O chat atual não é E2EE, pois as mensagens passam pelo servidor em formato legível e o módulo RSA não está integrado ao fluxo WebSocket.
+
+## Demonstração visual
+
+As capturas registram estados funcionais da interface e são complementadas pelo código do backend. Elas não representam métricas de latência, disponibilidade ou segurança além do que está implementado.
+
+### Fluxo 1 — Entrada e autenticação
+
+As telas cobrem login, cadastro e recuperação de senha. O backend usa JWT para sessão, BCrypt para senha e um token temporário enviado por e-mail no fluxo de recuperação. A geração das chaves RSA ocorre no cadastro apenas como experimento.
+
+<p align="center">
+  <img src="docs/images/login.jpg" alt="Tela de login" width="90%">
+  <img src="docs/images/register.jpg" alt="Tela de cadastro" width="90%">
+  <img src="docs/images/recuperarSenha.jpg" alt="Tela de recuperação de senha" width="90%">
+</p>
+
+### Fluxo 2 — Dashboard e gestão de chamados
+
+Os dashboards e a tela de detalhes apresentam listagens, filtros, estados do chamado e ações condicionadas ao perfil de usuário ou administrador.
+
+<p align="center">
+  <img src="docs/images/dashboard1.jpg" alt="Dashboard de chamados" width="90%">
+  <img src="docs/images/dashboard2.jpg" alt="Dashboard com navegação lateral" width="90%">
+  <img src="docs/images/detalhes.jpg" alt="Detalhes de um chamado" width="90%">
+</p>
+
+### Fluxo 3 — Chat em tempo real
+
+O chat abre uma conexão WebSocket vinculada ao chamado, recebe o histórico persistido e transmite novas mensagens aos participantes conectados depois de salvá-las no banco.
+
+<p align="center">
+  <img src="docs/images/chat.jpg" alt="Chat em tempo real de um chamado" width="90%">
+</p>
+
+### Fluxo 4 — Outros estados
+
+Não há capturas adicionais no repositório no estado atual. Estados como criação, edição, cancelamento, perfil e telas administrativas podem ser registrados futuramente sem substituir as imagens acima.
+
+## Execução local
 
 ### Pré-requisitos
 
-- **Node.js** >= 18.x
-- **npm** >= 9.x ou **yarn**
-- **PostgreSQL** >= 12 (local ou cloud)
-- **Git** (para versionamento)
+- Node.js e npm;
+- uma instância PostgreSQL acessível;
+- credenciais SMTP para testar os fluxos de e-mail.
 
-### Instalação
+### 1. Clonar
 
-#### 1. Clone o repositório
 ```bash
 git clone https://github.com/GabrielF0900/Sistema_De_Gerenciamento_De_Chamados.git
 cd Sistema_De_Gerenciamento_De_Chamados
 ```
 
-#### 2. Variáveis de Ambiente
+### 2. Configurar o backend
 
-**Backend** - Crie `.env` em `Backend/`:
+Use `Backend/.env.example` como referência. As variáveis consumidas pelo código incluem:
+
 ```env
-# Banco de Dados
-DATABASE_URL="postgresql://user:password@localhost:5432/chamados"
-
-# JWT
-JWT_SECRET="sua_chave_super_secreta_aqui"
-JWT_REFRESH_SECRET="sua_chave_refresh_aqui"
-
-# Email (Nodemailer)
-EMAIL_SERVICE="gmail"
-EMAIL_USER="seu_email@gmail.com"
-EMAIL_PASS="sua_senha_app_google"
-EMAIL_FROM="seu_email@gmail.com"
-
-# CORS
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/chamados"
+JWT_SECRET="troque-por-um-segredo"
+CLIENT_URL="http://localhost:5173"
 CORS_ORIGIN="http://localhost:5173"
-
-# WebSocket
-WEBSOCKET_URL="ws://localhost:3000"
-
-# Ambiente
-NODE_ENV="development"
-PORT=3000
+PORT=5000
+SMTP_HOST="seu-host-smtp"
+SMTP_PORT=587
+SMTP_USER="seu-usuario-smtp"
+SMTP_PASS="sua-senha-smtp"
 ```
 
-**Frontend** - Crie `.env` em `Frontend/`:
-```env
-VITE_API_BASE_URL=http://localhost:3000
-VITE_WEBSOCKET_URL=ws://localhost:3000
-```
-
-#### 3. Instalação de Dependências
+Depois, execute:
 
 ```bash
-# Backend
 cd Backend
 npm install
+npx prisma generate
 npx prisma migrate dev --name init
+npm run dev
+```
 
-# Frontend (em outro terminal)
+Por padrão, o servidor HTTP e o WebSocket usam `http://localhost:5000` e `ws://localhost:5000`.
+
+### 3. Configurar o frontend
+
+Use `Frontend/.env.example` como referência:
+
+```env
+VITE_API_URL="http://localhost:5000"
+VITE_WS_URL="ws://localhost:5000"
+```
+
+Em outro terminal:
+
+```bash
 cd Frontend
 npm install
-```
-
-#### 4. Inicie a Aplicação
-
-```bash
-# Terminal 1 - Backend
-cd Backend
-npm run dev
-
-# Terminal 2 - Frontend
-cd Frontend
 npm run dev
 ```
 
-A aplicação estará disponível em:
-- 🌐 Frontend: `http://localhost:5173`
-- 🔌 Backend: `http://localhost:3000`
-- 📊 WebSocket: `ws://localhost:3000`
+O Vite disponibiliza a interface em `http://localhost:5173` por padrão.
 
----
+### Scripts úteis
 
-## � Screenshots & Interface
+| Projeto | Comando | Ação |
+| --- | --- | --- |
+| Backend | `npm run dev` | Executa o servidor TypeScript em modo watch |
+| Backend | `npm run build` | Compila para `dist/` |
+| Backend | `npm start` | Executa o build compilado |
+| Backend | `npm run prisma:generate` | Gera o Prisma Client |
+| Backend | `npm run prisma:migrate` | Aplica migrations existentes |
+| Frontend | `npm run dev` | Inicia o Vite |
+| Frontend | `npm run build` | Verifica o TypeScript e gera o build |
+| Frontend | `npm run lint` | Executa o ESLint |
 
-### 🔐 Autenticação
+## Limitações atuais
 
-#### Login
-<div align="center">
-<img src="docs/images/login.jpg" alt="Tela de Login" width="90%" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
+- a autorização em nível de objeto ainda precisa ser reforçada: rotas como `/user/:id` e operações de chamados aceitam IDs da requisição sem derivar a identidade do token nem validar sempre a propriedade do recurso;
+- não há suíte de testes automatizados nem scripts de teste configurados nos pacotes;
+- o RSA não participa do fluxo WebSocket e as chaves privadas são armazenadas no banco e também gravadas em arquivos pelo módulo experimental;
+- `Backend/render.yaml` está incompleto — o serviço não tem nome e o manifesto usa `SMTP_PASSWORD`, enquanto o código lê `SMTP_PASS`; portanto, o deploy não está documentado como validado;
+- a pasta `.history` versionada contém artefatos de histórico local e aumenta o ruído do repositório.
 
-#### Registro
-<div align="center">
-<img src="docs/images/register.jpg" alt="Tela de Registro" width="90%" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
+## Roadmap
 
-#### Recuperação de Senha
-<div align="center">
-<img src="docs/images/recuperarSenha.jpg" alt="Tela de Recuperação de Senha" width="90%" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
+1. **Segurança e autorização:** derivar a identidade do JWT, validar propriedade dos recursos, autenticar o handshake WebSocket e revisar o armazenamento de chaves.
+2. **Testes:** cobrir services, controllers, middlewares, rotas HTTP e o ciclo de vida do chat.
+3. **Observabilidade e proteção:** adicionar logs estruturados, tratamento centralizado de erros e rate limiting.
+4. **Higiene e documentação:** remover artefatos de histórico local, adicionar instruções de contribuição e manter exemplos de ambiente sincronizados com o código.
+5. **Deploy:** corrigir e validar o manifesto do Render e documentar uma estratégia compatível para o frontend.
 
----
+## O que o projeto demonstra profissionalmente
 
-### 📊 Dashboard & Chamados
+- organização de uma aplicação full-stack com separação de responsabilidades;
+- modelagem relacional e persistência com PostgreSQL e Prisma;
+- autenticação, autorização por role e recuperação de senha;
+- integração de HTTP, WebSocket e e-mail no mesmo domínio de negócio;
+- liderança técnica e coordenação colaborativa por Kanban;
+- capacidade de avaliar limites do código sem transformar experimentos em promessas de produção.
 
-#### Dashboard - Visão Principal
-<div align="center">
-<img src="docs/images/dashboard1.jpg" alt="Dashboard - Visão Principal" width="90%" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
-
-#### Dashboard - Com Sidebar
-<div align="center">
-<img src="docs/images/dashboard2.jpg" alt="Dashboard - Com Sidebar" width="90%" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
-
----
-
-### 🎫 Detalhes e Funcionalidades
-
-#### Detalhes do Chamado
-<div align="center">
-<img src="docs/images/detalhes.jpg" alt="Detalhes do Chamado" width="90%" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
-
-#### Chat em Tempo Real
-<div align="center">
-<img src="docs/images/chat.jpg" alt="Chat em Tempo Real" width="90%" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-</div>
-
----
-
-## �📋 Scripts Disponíveis
-
-### Backend
-
-```bash
-# Desenvolvimento
-npm run dev              # Inicia servidor com hot-reload
-
-# Build & Deploy
-npm run build            # Compila TypeScript e gera Prisma Client
-npm run migrate          # Executa migrations do banco
-npm start               # Inicia servidor compilado
-npm run start:prod      # Build + Migrate + Start
-
-# Database
-npx prisma studio      # Abre Prisma Studio (GUI do banco)
-npx prisma migrate dev --name nome_migration  # Criar migration
-```
-
-### Frontend
-
-```bash
-# Desenvolvimento
-npm run dev             # Inicia Vite dev server
-
-# Build & Deploy
-npm run build          # Build otimizado para produção
-npm run preview        # Preview do build
-
-# Qualidade de Código
-npm run lint           # Executa ESLint
-```
-
----
-
-## 🔌 Endpoints da API
-
-### Autenticação
-- `POST /api/auth/register` - Registrar usuário
-- `POST /api/auth/login` - Fazer login
-- `POST /api/auth/refresh` - Renovar token JWT
-- `POST /api/auth/forgot-password` - Solicitar reset de senha
-- `POST /api/auth/reset-password` - Confirmar reset de senha
-
-### Chamados
-- `GET /api/chamados` - Listar todos os chamados
-- `GET /api/chamados/:id` - Obter detalhes de um chamado
-- `POST /api/chamados` - Criar novo chamado
-- `PUT /api/chamados/:id` - Atualizar chamado
-- `DELETE /api/chamados/:id` - Deletar chamado
-- `GET /api/chamados/stats/dashboard` - Estatísticas do dashboard
-
-### Respostas/Comentários
-- `GET /api/respostas/:chamadoId` - Listar respostas de um chamado
-- `POST /api/respostas` - Adicionar resposta
-- `PUT /api/respostas/:id` - Editar resposta
-- `DELETE /api/respostas/:id` - Deletar resposta
-
-### Usuários
-- `GET /api/usuarios` - Listar usuários (admin only)
-- `GET /api/usuarios/:id` - Obter dados do usuário
-- `PUT /api/usuarios/:id` - Atualizar perfil
-- `DELETE /api/usuarios/:id` - Deletar usuário (admin only)
-
-### Chat (WebSocket)
-- `connection` - Conectar ao servidor WebSocket
-- `send_message` - Enviar mensagem privada
-- `get_messages` - Recuperar histórico de mensagens
-- `disconnect` - Desconectar do WebSocket
-
----
-
-## 📊 Modelo de Dados
-
-### Entity Relationship Diagram (ER)
-
-```
-┌─────────────┐         ┌──────────────┐
-│   Usuario   │◄────────┤   Chamado    │
-├─────────────┤         ├──────────────┤
-│ id (PK)     │         │ id (PK)      │
-│ email       │         │ titulo       │
-│ senha       │         │ descricao    │
-│ nome        │         │ prioridade   │
-│ role        │         │ status       │
-│ createdAt   │         │ usuarioId(FK)│
-│ updatedAt   │         │ createdAt    │
-└─────────────┘         │ updatedAt    │
-       ▲                 └──────────────┘
-       │                        │
-       └────────────────────────┼────────┐
-                                │        │
-                         ┌──────▼────────▼────┐
-                         │    Resposta        │
-                         ├────────────────────┤
-                         │ id (PK)            │
-                         │ conteudo           │
-                         │ chamadoId (FK)     │
-                         │ usuarioId (FK)     │
-                         │ createdAt          │
-                         │ updatedAt          │
-                         └────────────────────┘
-```
-
----
-
-## 🔒 Segurança
-
-### Boas Práticas Implementadas
-- ✅ **Hash de Senhas**: Bcrypt com salt rounds configurável
-- ✅ **JWT Stateless**: Tokens assinados e com expiração
-- ✅ **CORS**: Configurado para aceitar apenas origem permitida
-- ✅ **Validação de Entrada**: Zod no frontend, middleware no backend
-- ✅ **Autenticação de Rotas**: Proteção via JWT middleware
-- ✅ **Autorização por Role**: Verificação de permissões (Admin/User)
-- ✅ **E2EE**: Criptografia end-to-end para mensagens privadas
-- ✅ **HTTPS**: Recomendado para produção
-- ✅ **Rate Limiting**: Recomendado configurar em produção
-- ✅ **Sanitização HTML**: Proteção contra XSS
-
----
-
-## 🚀 Deploy
-
-### Render (Backend)
-A configuração já está incluída em `Backend/render.yaml`:
-
-```bash
-cd Backend
-git push  # Render detectará automaticamente e fará deploy
-```
-
-### Vercel (Frontend)
-```bash
-cd Frontend
-npm run build
-# Deploy manual ou conectar repositório ao Vercel
-```
-
----
-
-## 📈 Métricas & Performance
-
-### Resultados Alcançados
-| Métrica | Valor | Status |
-|---------|-------|--------|
-| Agilidade de Atendimento | +30% | ✅ |
-| Endpoints Implementados | 10+ | ✅ |
-| Latência Chat (WebSocket) | <100ms | ✅ |
-| Uptime em Produção | 99.9% | ✅ |
-| Arquitetura Modular | 8 módulos | ✅ |
-
----
-
-## 🧪 Testes
-
-```bash
-# Frontend
-cd Frontend
-npm run test  # Jest (quando configurado)
-
-# Backend
-cd Backend
-npm run test  # Jest (quando configurado)
-```
-
----
-
-## 📚 Documentação Adicional
-
-- [Chat em Tempo Real](Backend/docs/Chat.md) - Documentação detalhada do sistema de chat WebSocket
-- [Schema Prisma](Backend/prisma/schema.prisma) - Definição completa do modelo de dados
-- [Environment Template](Backend/.env.example) - Template de variáveis de ambiente
-
----
-
-## 🤝 Contribuição
-
-Este é um projeto acadêmico, mas melhorias são bem-vindas:
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
----
-
-## 📝 Licença
-
-Este projeto é de código aberto e está disponível sob a [MIT License](LICENSE).
-
----
-
-## 👨‍💻 Contato
+## Contato e licença
 
 **Gabriel Falcão da Cruz**
 
-<div align="center">
+- [Portfólio](https://www.gabrielfalcaodacruz.tech/)
+- [LinkedIn](https://www.linkedin.com/in/gabrielfalcaodev/)
+- [GitHub](https://github.com/GabrielF0900)
+- [E-mail](mailto:falcaocruz.tech@gmail.com)
 
-[![Portfólio](https://img.shields.io/badge/Portfólio-000000?style=for-the-badge&logo=globe&logoColor=white)](https://www.gabrielfalcaodacruz.tech/)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/gabrielfalcaodev/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/GabrielF0900)
-[![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:falcaocruz.tech@gmail.com)
-
-</div>
-
----
-
-## 🙏 Agradecimentos
-
-- Escola da Nuvem e Rocketseat por seus recursos educacionais
-- Express.js e React.js comunidades
-- PostgreSQL, Prisma, e WebSocket comunidades
-
----
-
-## 📞 Suporte
-
-Encontrou um bug? Abridor uma issue no repositório com:
-- Descrição clara do problema
-- Passos para reproduzir
-- Comportamento esperado vs. real
-- Screenshots ou logs de erro (se aplicável)
+O repositório não contém um arquivo de licença no estado atual. Consulte o responsável antes de reutilizar ou redistribuir o código.
