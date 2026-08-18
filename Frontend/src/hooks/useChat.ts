@@ -26,15 +26,17 @@ export default function useChat(chamadoId: number, userId: number) {
   useEffect(() => {
     // Ativa o carregamento
     setLoading(true);
+    const token = localStorage.getItem("token");
+    const websocketUrl = import.meta.env.VITE_WS_URL || "ws://localhost:5000/";
+    const separator = websocketUrl.includes("?") ? "&" : "?";
     ws.current = new WebSocket(
-      import.meta.env.VITE_WS_URL || "ws://localhost:5000/"
+      `${websocketUrl}${separator}token=${encodeURIComponent(token || "")}`
     );
 
     ws.current.onopen = () => {
       ws.current?.send(
         JSON.stringify({
           type: "register",
-          usuario_id: userId,
           chamado_id: chamadoId,
         })
       );
@@ -90,7 +92,6 @@ export default function useChat(chamadoId: number, userId: number) {
         ws.current?.send(
           JSON.stringify({
             type: "unregister",
-            usuario_id: userId,
             chamado_id: chamadoId,
           })
         );
@@ -106,7 +107,6 @@ export default function useChat(chamadoId: number, userId: number) {
         ws.current.send(
           JSON.stringify({
             type: "chat_message",
-            usuario_id: userId,
             chamado_id: chamadoId,
             conteudo: message,
           })

@@ -112,7 +112,7 @@ O backend possui **16 rotas HTTP declaradas nos três routers principais**, alé
 
 ## WebSocket
 
-O servidor WebSocket utiliza o mesmo servidor HTTP do Express. Ao abrir o chat, o cliente envia um evento `register` com os IDs do chamado e do usuário. O backend registra a conexão no chamado e consulta no PostgreSQL o histórico armazenado em `Resposta`.
+O servidor WebSocket utiliza o mesmo servidor HTTP do Express. O cliente abre a conexão com o JWT na query string (`?token=...`) e, depois da validação, envia um evento `register` apenas com o ID do chamado. O backend deriva o usuário do token, valida a propriedade do chamado (ou a role administrativa), registra a conexão e consulta no PostgreSQL o histórico armazenado em `Resposta`. A query string é usada por compatibilidade com o cliente WebSocket do navegador; URLs com token não devem ser registradas em logs.
 
 Cada evento `chat_message` é persistido antes de o backend recuperar a última mensagem e fazer broadcast para as conexões registradas naquele chamado. No evento `unregister` ou ao fechar a conexão, o cliente é removido do registro em memória.
 
@@ -121,6 +121,8 @@ Cada evento `chat_message` é persistido antes de o backend recuperar a última 
 - senhas são armazenadas com hash BCrypt e fator de custo 10;
 - tokens JWT assinados protegem as rotas privadas e expiram conforme o fluxo — quatro horas para sessão e quinze minutos para recuperação de senha;
 - middleware específico verifica a role `admin` nas operações administrativas;
+- a identidade HTTP é derivada do JWT, com validação de ownership para usuários e chamados;
+- o handshake WebSocket exige JWT válido e o acesso ao chamado é conferido antes do registro;
 - CORS aceita uma origem configurável por variável de ambiente;
 - parâmetros numéricos e filtros conhecidos passam por middlewares de validação.
 
@@ -175,7 +177,7 @@ O chat abre uma conexão WebSocket vinculada ao chamado, recebe o histórico per
 ### 1. Clonar
 
 ```bash
-git clone https://github.com/GabrielF0900/Sistema_De_Gerenciamento_De_Chamados.git
+git clone https://github.com/Neukox/Sistema_De_Gerenciamento_De_Chamados.git
 cd Sistema_De_Gerenciamento_De_Chamados
 ```
 
@@ -201,11 +203,11 @@ Depois, execute:
 cd Backend
 npm install
 npx prisma generate
-npx prisma migrate dev --name init
+npx prisma generate
 npm run dev
 ```
 
-Por padrão, o servidor HTTP e o WebSocket usam `http://localhost:5000` e `ws://localhost:5000`.
+Por padrão, o servidor HTTP e o WebSocket usam `http://localhost:5000` e `ws://localhost:5000`. O repositório ainda não contém migrations versionadas; crie uma migration deliberadamente quando o ambiente de banco estiver pronto e aplique migrations existentes com `npm run prisma:migrate`.
 
 ### 3. Configurar o frontend
 
@@ -241,17 +243,17 @@ O Vite disponibiliza a interface em `http://localhost:5173` por padrão.
 
 ## Limitações atuais
 
-- a autorização em nível de objeto ainda precisa ser reforçada: rotas como `/user/:id` e operações de chamados aceitam IDs da requisição sem derivar a identidade do token nem validar sempre a propriedade do recurso;
+- a autorização em nível de objeto foi mitigada nas rotas de usuário e chamados por identidade derivada do JWT e validação de propriedade; uma revisão futura pode ampliar a cobertura para novos recursos;
 - não há suíte de testes automatizados nem scripts de teste configurados nos pacotes;
-- o RSA não participa do fluxo WebSocket e as chaves privadas são armazenadas no banco e também gravadas em arquivos pelo módulo experimental;
-- `Backend/render.yaml` está incompleto — o serviço não tem nome e o manifesto usa `SMTP_PASSWORD`, enquanto o código lê `SMTP_PASS`; portanto, o deploy não está documentado como validado;
-- a pasta `.history` versionada contém artefatos de histórico local e aumenta o ruído do repositório.
+- o RSA não participa do fluxo WebSocket e a chave privada continua armazenada no banco pelo experimento; ela não é mais gravada automaticamente em arquivo;
+- `Backend/render.yaml` é uma configuração preparada, mas o deploy no Render não foi comprovado neste ambiente;
+- não há suíte de testes automatizados configurada.
 
 ## Roadmap
 
-1. **Segurança e autorização:** derivar a identidade do JWT, validar propriedade dos recursos, autenticar o handshake WebSocket e revisar o armazenamento de chaves.
+1. **Segurança e autorização:** ampliar a validação de propriedade para novos recursos e revisar o armazenamento da chave privada RSA.
 2. **Testes:** cobrir services, controllers, middlewares, rotas HTTP e o ciclo de vida do chat.
-3. **Observabilidade e proteção:** adicionar logs estruturados, tratamento centralizado de erros e rate limiting.
+3. **Observabilidade e proteção:** adicionar logs estruturados, tratamento centralizado de erros e rate limiting HTTP/WebSocket.
 4. **Higiene e documentação:** remover artefatos de histórico local, adicionar instruções de contribuição e manter exemplos de ambiente sincronizados com o código.
 5. **Deploy:** corrigir e validar o manifesto do Render e documentar uma estratégia compatível para o frontend.
 

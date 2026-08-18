@@ -7,6 +7,7 @@ import {
   sendNotificationToAdmins,
   sendStatusChangeEmail,
 } from "../email/send";
+import { canAccessTicket } from "../middlewares/authorization";
 
 /**
  * Controller para gerenciar chamados.
@@ -76,6 +77,11 @@ async function getById(req: Request, res: Response): Promise<void> {
   try {
     const chamado = await ChamadoServices.getById(id);
 
+    if (chamado && !canAccessTicket(req, chamado.usuario_id)) {
+      res.status(403).json({ message: "Não autorizado a acessar este chamado" });
+      return;
+    }
+
     // Verifica se o chamado foi encontrado
     if (!chamado) {
       res.status(404).json({ message: "Chamado não encontrado" });
@@ -110,8 +116,14 @@ async function getById(req: Request, res: Response): Promise<void> {
  * */
 
 async function getByUserId(req: Request, res: Response): Promise<void> {
-  const usuarioId = Number(req.params.id);
+  const requestedUserId = Number(req.params.id);
+  const usuarioId = req.user?.role === "admin" ? requestedUserId : req.user?.id;
   const { search, type, status } = req.query;
+
+  if (!usuarioId || !canAccessTicket(req, usuarioId)) {
+    res.status(403).json({ message: "Não autorizado a acessar estes chamados" });
+    return;
+  }
 
   try {
     const chamados = await ChamadoServices.getAllByUserId(usuarioId, {
@@ -158,9 +170,9 @@ async function create(req: Request, res: Response): Promise<void> {
   const {
     titulo,
     descricao,
-    usuario_id: usuarioId,
     tipo_atendimento: tipoAtendimento,
   } = req.body;
+  const usuarioId = req.user?.id;
 
   // Validação dos dados recebidos
   if (!titulo || !descricao || !usuarioId || !tipoAtendimento) {
@@ -222,6 +234,11 @@ async function update(req: Request, res: Response): Promise<void> {
   try {
     const chamado = await ChamadoServices.getById(id);
 
+    if (chamado && !canAccessTicket(req, chamado.usuario_id)) {
+      res.status(403).json({ message: "Não autorizado a atualizar este chamado" });
+      return;
+    }
+
     if (!chamado) {
       res.status(404).json({ message: "Chamado não encontrado" });
       return;
@@ -258,7 +275,7 @@ async function update(req: Request, res: Response): Promise<void> {
 
 async function updateStatus(req: Request, res: Response): Promise<void> {
   const chamadoID = Number(req.params.id);
-  const { status, mensagem, admin_id } = req.body;
+  const { status, mensagem } = req.body;
 
   // Validação dos dados recebidos
   if (
@@ -297,7 +314,7 @@ async function updateStatus(req: Request, res: Response): Promise<void> {
     const usuario = await UsuarioServices.getById(chamado.usuario_id);
 
     // Busca o administrador que está atualizando o status
-    const admin = await UsuarioServices.getAdminById(admin_id as number);
+    const admin = req.user ? await UsuarioServices.getAdminById(req.user.id) : null;
 
     // Verifica se o usuário e o administrador existem
     if (usuario && admin) {
@@ -334,6 +351,11 @@ async function cancel(req: Request, res: Response): Promise<void> {
   try {
     const chamado = await ChamadoServices.getById(id);
 
+    if (chamado && !canAccessTicket(req, chamado.usuario_id)) {
+      res.status(403).json({ message: "Não autorizado a cancelar este chamado" });
+      return;
+    }
+
     // Verifica se o chamado foi encontrado
     if (!chamado) {
       res.status(404).json({ message: "Chamado não encontrado" });
@@ -366,17 +388,19 @@ async function cancel(req: Request, res: Response): Promise<void> {
  * */
 
 async function sendMessage(req: Request, res: Response): Promise<void> {
-  const { usuario_id: usuarioID, mensagem, admin_id } = req.body;
+  const { mensagem } = req.body;
   const chamadoID = Number(req.params.id);
 
   // Validação dos dados recebidos
-  if (!usuarioID || !mensagem || !admin_id) {
+  if (!mensagem) {
     res.status(400).json({ message: "Dados inválidos" });
     return;
   }
 
   try {
     const chamado = await ChamadoServices.getById(chamadoID);
+
+    const usuarioID = chamado?.usuario_id;
 
     // Verifica se o chamado foi encontrado
     if (!chamado) {
@@ -409,7 +433,7 @@ async function sendMessage(req: Request, res: Response): Promise<void> {
     }
 
     // Busca o administrador que está enviando a mensagem
-    const admin = await UsuarioServices.getAdminById(admin_id as number);
+    const admin = req.user ? await UsuarioServices.getAdminById(req.user.id) : null;
 
     // Verifica se o administrador existe
     if (!admin || admin.id === undefined) {

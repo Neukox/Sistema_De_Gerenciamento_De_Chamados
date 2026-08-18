@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import UserServices from "../usuarios/services";
 import bycrypt from "bcrypt";
+import { canAccessUser } from "../middlewares/authorization";
 
 /**
  * Controlador para gerenciar as informações do usuário.
@@ -8,6 +9,11 @@ import bycrypt from "bcrypt";
  */
 async function getUserInfo(req: Request, res: Response): Promise<void> {
   const id = Number(req.params.id);
+
+  if (!canAccessUser(req, id)) {
+    res.status(403).json({ message: "Não autorizado a acessar este usuário" });
+    return;
+  }
 
   try {
     const usuario = await UserServices.getById(id);
@@ -41,6 +47,11 @@ async function getUserInfo(req: Request, res: Response): Promise<void> {
 async function updateUserInfo(req: Request, res: Response): Promise<void> {
   const { nome, email } = req.body;
   const id = Number(req.params.id);
+
+  if (!canAccessUser(req, id)) {
+    res.status(403).json({ message: "Não autorizado a atualizar este usuário" });
+    return;
+  }
 
   // Valida os dados recebidos
   if (!nome || !email) {
@@ -84,6 +95,11 @@ async function updateUserInfo(req: Request, res: Response): Promise<void> {
 async function changePassword(req: Request, res: Response): Promise<void> {
   const { nova_senha } = req.body;
   const id = Number(req.params.id);
+
+  if (!canAccessUser(req, id)) {
+    res.status(403).json({ message: "Não autorizado a alterar esta senha" });
+    return;
+  }
 
   // Valida os dados recebidos
   if (!nova_senha) {

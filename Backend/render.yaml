@@ -1,9 +1,9 @@
 services:
   - type: web
-    name:
+    name: sistema-gerenciamento-chamados
     env: node
     plan: free
-    buildCommand: npm install && npm run build && npx prisma:generate
+    buildCommand: npm install && npm run prisma:generate && npm run build
     startCommand: node dist/server.js
     autoDeploy: true
     envVars:
@@ -19,7 +19,7 @@ services:
         sync: false
       - key: SMTP_USER
         sync: false
-      - key: SMTP_PASSWORD
+      - key: SMTP_PASS
         sync: false
       - key: CLIENT_URL
         sync: false
